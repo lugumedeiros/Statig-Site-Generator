@@ -5,7 +5,7 @@ class HTMLTags(Enum):
     TAG = 0
 
 class HTMLNode:
-    def __init__(self, tag=None, value=None, children=None, props=None):
+    def __init__(self, tag=None, value=None, children:list["HTMLNode"]=None, props=None):
         self.tag = tag
         self.value = value
         self.children = children
@@ -53,12 +53,25 @@ class LeafNode(HTMLNode):
             {self.props_to_html()}
             """
         return textwrap.dedent(string).strip()
+    
+class ParentNode(HTMLNode):
+    def __init__(self, tag:str, children:list[HTMLNode], props=None):
+        super().__init__(tag, None, children, props)
+
+    def to_html(self):
+        children_strings = "".join([node.to_html() for node in self.children])
+        return f"<{self.tag}>{children_strings}</{self.tag}>"
 
 if __name__ == "__main__":
-    x = HTMLNode("a", "test", ["is"], {"run":"ning"})
-    print(x)
-    print(x.props_to_html(), 'sa')
+    # x = HTMLNode("a", "test", ["is"], {"run":"ning"})
+    # print(x)
+    # print(x.props_to_html(), 'sa')
 
-    y = LeafNode("a", "test", {"run":"ning"})
-    print(y)
-    print(y.to_html())
+    # y = LeafNode("a", "test", {"run":"ning"})
+    # print(y)
+    # print(y.to_html())
+
+    grandchild_node = LeafNode("b", "grandchild")
+    child_node = ParentNode("span", [grandchild_node])
+    parent_node = ParentNode("div", [child_node])
+    print(parent_node.to_html())
