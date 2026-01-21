@@ -63,14 +63,6 @@ class ParentNode(HTMLNode):
         return f"<{self.tag}>{children_strings}</{self.tag}>"
 
 if __name__ == "__main__":
-    # x = HTMLNode("a", "test", ["is"], {"run":"ning"})
-    # print(x)
-    # print(x.props_to_html(), 'sa')
-
-    # y = LeafNode("a", "test", {"run":"ning"})
-    # print(y)
-    # print(y.to_html())
-
     grandchild_node = LeafNode("b", "grandchild")
     child_node = ParentNode("span", [grandchild_node])
     parent_node = ParentNode("div", [child_node])
