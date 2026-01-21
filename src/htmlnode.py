@@ -1,4 +1,5 @@
 from enum import Enum
+import textwrap
 
 class HTMLTags(Enum):
     TAG = 0
@@ -29,7 +30,35 @@ class HTMLNode:
 """
         return string
     
+
+class LeafNode(HTMLNode):
+    def __init__(self, tag=None, value=None, props=None):
+        super().__init__(tag, value, None, props)
+
+    def to_html(self):
+        if self.props is not None:
+            props = self.props_to_html()
+            string = f"<{self.tag} {props}>{self.value}</{self.tag}>"
+        else:
+            string = f"<{self.tag}>{self.value}</{self.tag}>"
+        return string
+        
+    def __repr__(self):
+        string = f"""
+            -> TAG:
+            {self.tag}
+            -> VALUE:
+            {self.value}
+            -> PROPS:
+            {self.props_to_html()}
+            """
+        return textwrap.dedent(string).strip()
+
 if __name__ == "__main__":
     x = HTMLNode("a", "test", ["is"], {"run":"ning"})
     print(x)
     print(x.props_to_html(), 'sa')
+
+    y = LeafNode("a", "test", {"run":"ning"})
+    print(y)
+    print(y.to_html())
