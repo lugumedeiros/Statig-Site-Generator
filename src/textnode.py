@@ -69,7 +69,7 @@ def _get_node(text, text_type, url=None) -> TextNode:
 
     return TextNode(text, text_type, url)
 
-def split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:TextType) -> list[TextNode]:
+def _split_nodes_delimiter(old_nodes:list[TextNode], delimiter:str, text_type:TextType) -> list[TextNode]:
     new_nodes = []
     for node in old_nodes:
         if not _is_plain_text(node):
@@ -111,19 +111,31 @@ def _get_embedded(old_nodes:list[TextNode], node_type:TextType) -> list[TextNode
     
     new_nodes = []
     for node in old_nodes:
-        extracted_marks = util.extract_markdown_images(node.text)
+        if node_type is TextType.IMAGE:
+            extracted_marks = util.extract_markdown_images(node.text)
+        else:
+            extracted_marks = util.extract_markdown_links(node.text)
         tmp_nodes = [node]
         for alt, url in extracted_marks:
             mark = get_mark(alt, url, node_type)
-            tmp_nodes = split_nodes_delimiter(tmp_nodes, mark, node_type)
+            tmp_nodes = _split_nodes_delimiter(tmp_nodes, mark, node_type)
         new_nodes += tmp_nodes
     return new_nodes
 
-def split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
+def _split_nodes_image(old_nodes:list[TextNode]) -> list[TextNode]:
     return _get_embedded(old_nodes, TextType.IMAGE)
 
-def split_nodes_link(old_nodes:list[TextNode]) -> list[TextNode]:
+def _split_nodes_link(old_nodes:list[TextNode]) -> list[TextNode]:
     return _get_embedded(old_nodes, TextType.LINK)
+
+def text_to_textnodes(text:str) -> list[TextNode]:
+    nodes = [_get_node(text, TextType.TEXT)]
+    nodes = _split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = _split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    nodes = _split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = _split_nodes_image(nodes)
+    nodes = _split_nodes_link(nodes)
+    return nodes
 
 if __name__ == "__main__":
     # node = TextNode("This is a text node", TextType.TEXT)
@@ -168,18 +180,26 @@ if __name__ == "__main__":
     # print(result[2].text_type, TextType.TEXT)
     # print(result[2].text, " texto depois")
     ##########################################
-    node = TextNode(
-            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
-            TextType.TEXT,
-        )
-    new_nodes = split_nodes_image([node])
-    x = [
-        TextNode("This is text with an ", TextType.TEXT),
-        TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
-        TextNode(" and another ", TextType.TEXT),
-        TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png")
-        ]
     
-    print(new_nodes)
+    # node = TextNode(
+    #         "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+    #         TextType.TEXT,
+    #     )
+    # new_nodes = _split_nodes_image([node])
+    # x = [
+    #     TextNode("This is text with an ", TextType.TEXT),
+    #     TextNode("image", TextType.IMAGE, "https://i.imgur.com/zjjcJKZ.png"),
+    #     TextNode(" and another ", TextType.TEXT),
+    #     TextNode("second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png")
+    #     ]
     
+    # print(new_nodes)
+
+    ##############################################
+    test = r"This is **text** with an _italic_ word and a `code block` and an ![obi wan image](https://i.imgur.com/fJRm4Vk.jpeg) and a [link](https://boot.dev)"
+    nodes = text_to_textnodes(test)
+    print("")
+    for i in nodes:
+        print(f"TYPE:{i.text_type.name},\t STR:{i.text}, URL:{i.url}")
+   
     pass
