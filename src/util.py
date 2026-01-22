@@ -14,6 +14,10 @@ def extract_markdown_links(text:str) -> dict[str, str]:
         raise Exception("invalid markdown or broken logic")
     return [(alts[i], urls[i]) for i in range(len(urls))]
 
+def markdown_to_blocks(markdown) -> list[str]:
+    blocks = markdown.split("\n\n")
+    blocks = [x.strip() for x in blocks]
+    return blocks
 
 if __name__ == "__main__":
     text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and [obi wan](https://mytube.com/fJRm4Vk) link"
