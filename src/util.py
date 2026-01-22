@@ -1,13 +1,13 @@
 import re
 
-def extract_markdown_images(text:str):
+def extract_markdown_images(text:str) -> dict[str, str]:
     urls = re.findall(r"!\[[^\]]*\]\((.*?)\)", text)
     alts = re.findall(r"!\[(.*?)\]",  text)
     if len(urls) != len(alts):
         raise Exception("invalid markdown or broken logic")
     return [(alts[i], urls[i]) for i in range(len(urls))]
 
-def extract_markdown_links(text:str):
+def extract_markdown_links(text:str) -> dict[str, str]:
     urls = re.findall(r"(?<!!)\[[^\]]*\]\((.*?)\)", text)
     alts = re.findall(r"(?<!!)\[(.*?)\]",  text)
     if len(urls) != len(alts):
