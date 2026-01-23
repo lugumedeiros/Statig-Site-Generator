@@ -1,4 +1,6 @@
 from enum import Enum
+import os
+from pathlib import Path
 
 from htmlnode import ParentNode
 from inline_markdown import text_to_textnodes
@@ -149,3 +151,34 @@ def quote_to_html_node(block):
     content = " ".join(new_lines)
     children = text_to_children(content)
     return ParentNode("blockquote", children)
+
+def extract_title(markdown:str):
+    for line in markdown.splitlines():
+        if line.startswith("# "):
+            return line.replace("# ", "")
+    raise Exception("No Header Found")
+
+def generate_page(from_path, template_path, dest_path):
+    def get_file(from_path):
+        with open(from_path, "r") as file:
+            f = file.read()
+        return f
+    
+    def write_file(text, path):
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if path.is_file():
+            os.remove(path)
+        
+        with open(path, 'w+') as file:
+            file.write(text)
+    
+    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+    markdown_file = get_file(from_path)
+    template_file = get_file(template_path)
+    html_string = markdown_to_html_node(markdown_file).to_html()
+    title = extract_title(markdown_file)
+    template_file = template_file.replace(r"{{ Title }}", title)
+    template_file = template_file.replace(r"{{ Content }}", html_string)
+    write_file(template_file, dest_path)
+
