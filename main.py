@@ -2,10 +2,8 @@ import os
 from pathlib import Path
 import shutil
 
-PUBLIC_PATH = Path("public")
+PUBLIC_PATH = Path("docs")
 STATIC_PATH = Path("static")
-
-
 
 def clean_public_dir():
     if PUBLIC_PATH.exists() and PUBLIC_PATH.is_dir():

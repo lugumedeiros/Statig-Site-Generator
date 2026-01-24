@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 from pathlib import Path
+import sys
 
 from htmlnode import ParentNode
 from inline_markdown import text_to_textnodes
@@ -180,5 +181,12 @@ def generate_page(from_path, template_path, dest_path):
     title = extract_title(markdown_file)
     template_file = template_file.replace(r"{{ Title }}", title)
     template_file = template_file.replace(r"{{ Content }}", html_string)
+
+    if len(sys.argv) > 1:
+        new_base_path = Path(sys.argv[1])
+        template_file = template_file.replace("href=\"/", f"href=\"/{new_base_path}/")
+        template_file = template_file.replace("src=\"/", f"src=\"/{new_base_path}/")
+        print("REPLACES with", new_base_path)
+
     write_file(template_file, dest_path)
 
