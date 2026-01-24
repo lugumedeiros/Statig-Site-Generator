@@ -8,7 +8,7 @@ def get_indexmd(path_target:str|Path, found=None):
         found = []
 
     target = Path(path_target)
-    if target.is_file() and target.name == "index.md":
+    if target.is_file() and target.suffix == ".md":
         found.append(target)
     elif target.is_dir():
         for target_file in target.iterdir():    
